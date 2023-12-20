@@ -3,6 +3,7 @@ const bodyParser = require("body-parser"); // Require body-parser module
 require("dotenv").config(); // Require dotenv file
 const app = express(); // Create express app
 const port = process.env.PORT || 80; // Server port
+app.use(require('cors')())
 
 /*app.use(express.static(__dirname)); // Serve static files from the current directory
 
