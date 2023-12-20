@@ -1,5 +1,5 @@
 {
-  "name": "greenify",
+  "name": "ev_backend_prod",
   "version": "1.0.0",
   "description": "EV Charging Dashboard",
   "main": "app.js",
