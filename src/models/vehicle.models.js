@@ -40,4 +40,6 @@ const vehicleSchema=new mongoose.Schema({
 },{timestamps: true}
 );
 
-export const Vehicle=mongoose.model("Vehicle",vehicleSchema);
+const Vehicle=mongoose.model("Vehicle",vehicleSchema);
+
+module.exports=Vehicle;

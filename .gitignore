@@ -1,6 +1,3 @@
 node_modules 
-#ignore node_modules folder, Install Dependencies manually //express//
 package-lock.json
-#ignore package-lock.json, Installed Automatically
 .env
-#ignore confidential credentials

@@ -20,4 +20,6 @@ const stationSchema = new mongoose.Schema({
     }
 },{timestamps: true});
 
-export const Station = mongoose.model("Station", stationSchema);
+const Station = mongoose.model("Station", stationSchema);
+
+module.exports = Station;
