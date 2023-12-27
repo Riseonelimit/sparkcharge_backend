@@ -29,13 +29,15 @@ app.use(cookieParser());
 
 const userRouter = require("./routes/user.routes.js");
 const stationRouter = require("./routes/station.routes.js");
-//Import User Routes from user.routes.js
+const bookingRouter = require("./routes/booking.routes.js");
+//Import User, Station, Booking Routes from user.routes.js
 
 
 
 
 app.use("/api/v1/user", userRouter)
 app.use("/api/v1/station", stationRouter);
+app.use("/api/v1/booking", bookingRouter);
 //Routes Declaration
 
 

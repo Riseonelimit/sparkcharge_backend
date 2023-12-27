@@ -2,32 +2,34 @@ const mongoose = require('mongoose');
 //import mongoose
 
 //const mongooseAggregatePaginate = require('mongoose-aggregate-paginate-v2');
-const bookedslotSchema = new mongoose.Schema({
-    bdate: {
-        type: Date,
-        required: true,
-    },
-    bslot: {
-        type: string,
-        enum: ["0003","0306","0609","0912","1215","1518","1821","2124"],
-        required: true
-    }
-});
+
 const slotsSchema = new mongoose.Schema({
     sid: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Station',
-        required: true,
+        required: true
     },
-    uid: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
+    stationname: {
+        type: String,
         required: true,
+        uppercase: true
     },
-    bookedslot: {
-        type: [bookedslotSchema],
+    type: {
+        type: String,
+        enum: [
+            "DC-CCS1",
+            "DC-CCS2",
+            "DC-CHADEMO",
+            "DC-GB/T",
+            "AC-Type1",
+            "AC-Type2",
+            "AC-IEC",
+            "AC-BHARATAC001",
+            "DC-BHARATDC001",
+            "HYBRID-TESLA",
+        ],
         required: true,
-        unique: true
+        uppercase: true
     }
 },{timestamps: true});
 //slotsSchema.plugin(mongooseAggregatePaginate);
