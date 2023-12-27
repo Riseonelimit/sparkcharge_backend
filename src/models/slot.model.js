@@ -1,4 +1,6 @@
 const mongoose = require('mongoose');
+//import mongoose
+
 //const mongooseAggregatePaginate = require('mongoose-aggregate-paginate-v2');
 const bookedslotSchema = new mongoose.Schema({
     bdate: {
@@ -31,5 +33,7 @@ const slotsSchema = new mongoose.Schema({
 //slotsSchema.plugin(mongooseAggregatePaginate);
 
 const Slots = mongoose.model("Slots", slotsSchema);
+//create slots model
 
 module.exports = Slots;
+//export slots model

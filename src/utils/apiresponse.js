@@ -6,4 +6,7 @@ class apiresponse{
         this.success = statusCode < 400
     }
 }
-//module.exports = apiresponse;
+//Provides a convenient way to create consistent and structured API responses
+
+module.exports = apiresponse;
+//Export ApiResponse Class

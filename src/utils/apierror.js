@@ -14,4 +14,7 @@ class apierror extends Error {
         }
     }
 }
+//Create a class apierror that extends Error providing consistent information about the nature of the error
+
 module.exports = apierror;
+//Export apierror
