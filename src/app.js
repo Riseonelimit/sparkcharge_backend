@@ -6,6 +6,8 @@ const cookieParser = require("cookie-parser");
 //Import Cookie Parser
 const app = express();
 //Create Express App
+const morgan = require('morgan');
+//Import Morgan for Logging
 app.use(cors({
     origin: process.env.CORS_ORIGIN,
     //Origin of Request
@@ -24,8 +26,8 @@ app.use(express.static("public"))
 //Express Static Directory
 app.use(cookieParser());
 //Express Cookie Parser
-
-
+app.use(morgan('dev'));
+//Express Morgan Logger
 
 const userRouter = require("./routes/user.routes.js");
 const stationRouter = require("./routes/station.routes.js");

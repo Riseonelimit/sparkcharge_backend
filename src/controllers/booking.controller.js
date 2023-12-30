@@ -1,7 +1,7 @@
 const Booking = require('../models/booking.model.js');
 //Import Booking Model from models/booking.model.js
 const User=require('../models/user.model.js');
-//Import User Model from models/user.model.js
+//Import User Model from models/user.model.js //YET TO BE USED
 const Vehicle = require('../models/vehicle.model.js');
 //Import Vehicle Model from models/vehicle.model.js
 const Slot = require('../models/slot.model.js');
