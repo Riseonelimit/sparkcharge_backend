@@ -112,8 +112,8 @@ const loginUser = asyncHandler(async (req, res) => {
 
     const options= {
         //Set cookie options
-        httpOnly: process.env.COOKIE_HTTP_ONLY,
-        secure: process.env.COOKIE_SECURE
+        httpOnly: process.env.COOKIE_HTTP_ONLY === 'true',
+        secure: process.env.COOKIE_SECURE === 'true'
     }
 
     return res.status(200)
@@ -157,8 +157,8 @@ const logoutUser = asyncHandler(async (req, res) => {
     })
     const options= {
         //Set cookie options
-        httpOnly: process.env.COOKIE_HTTP_ONLY,
-        secure: process.env.COOKIE_SECURE
+        httpOnly: process.env.COOKIE_HTTP_ONLY === 'true',
+        secure: process.env.COOKIE_SECURE === 'true'
     }
     return res.status(200)
     .clearCookie("accessToken",options)
@@ -191,8 +191,8 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
         }
         const options= {
             //Set cookie options
-            httpOnly: process.env.COOKIE_HTTP_ONLY,
-            secure: process.env.COOKIE_SECURE
+            httpOnly: process.env.COOKIE_HTTP_ONLY === 'true',
+            secure: process.env.COOKIE_SECURE === 'true'
         }
     
         const {accessToken, newrefreshToken} = await generateAccessAndRefreshTokens(user._id)
