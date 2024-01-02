@@ -112,8 +112,8 @@ const loginUser = asyncHandler(async (req, res) => {
 
     const options= {
         //Set cookie options
-        httpOnly: true,
-        secure: true
+        httpOnly: process.env.COOKIE_HTTP_ONLY,
+        secure: process.env.COOKIE_SECURE
     }
 
     return res.status(200)
@@ -155,10 +155,10 @@ const logoutUser = asyncHandler(async (req, res) => {
         new: true
         //Return updated user
     })
-    const options = {
+    const options= {
         //Set cookie options
-        httpOnly: true,
-        secure: true
+        httpOnly: process.env.COOKIE_HTTP_ONLY,
+        secure: process.env.COOKIE_SECURE
     }
     return res.status(200)
     .clearCookie("accessToken",options)
@@ -189,10 +189,10 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
             //If incoming refresh token does not match with the one in database
             throw new apierror(401,"Refresh Token is Expired!")
         }
-        const options = {
+        const options= {
             //Set cookie options
-            httpOnly: true,
-            secure: true
+            httpOnly: process.env.COOKIE_HTTP_ONLY,
+            secure: process.env.COOKIE_SECURE
         }
     
         const {accessToken, newrefreshToken} = await generateAccessAndRefreshTokens(user._id)
