@@ -185,6 +185,20 @@ const getSlotByStation = asyncHandler(async (req, res) => {
     return res.status(200)
     .json(new apiresponse(200,slots, "Slots Found!"))
 })
+const getStationBySlug = asyncHandler(async (req, res) => {
+    const slug  = req.params.slug;
+    if([slug].some((field)=>field === undefined || (field?.trim() === ""))){
+        //If any of the fields are undefined or empty
+        throw new apierror(400,"Please fill all the fields!")
+    }
+    const station = await Station.findOne({station_name: slug.toUpperCase()});
+    if(!station){
+        //If station does not exist
+        throw new apierror(404, "Station does not exist!")
+    }
+    return res.status(200)
+    .json(new apiresponse(200,station, "Station Found!"))
+})
 
 module.exports ={
     addStation, 
@@ -193,6 +207,7 @@ module.exports ={
     addSlot,
     removeSlot,
     getStationSlotByLocation,
-    getSlotByStation
+    getSlotByStation,
+    getStationBySlug
 }
 //Export Station Controller Functions

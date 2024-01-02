@@ -427,6 +427,43 @@ const demoteAdmin = asyncHandler(async (req, res) => {
     return res.status(200)
     .json(new apiresponse(200,remAdmin,"Admin demoted Successfully!"))
 })
+const getUserSlug = asyncHandler(async (req, res) => {
+    const slug = req.params.slug
+    if(slug === undefined || (slug?.trim() === "")){
+        //If slug is undefined or empty
+        throw new apierror(400,"Received null/undefined slug!")
+    }
+    if(req.user.isAdmin == true){
+        const user = await User.findOne({
+            //Check if user exists
+            $or: [{_id: slug}]
+        }).select("-password -refreshToken")
+        if(!user){
+            //If user is not found
+            throw new apierror(404,"User not found!")
+        }
+        return res.status(200).json(
+            //Return success response
+            new apiresponse(200,user,"User found successfully!")
+        )
+    }
+    if(req.user._id.toString()==slug){
+        const user = await User.findOne({
+            //Check if user exists
+            $or: [{_id: slug}]
+        }).select("-password -refreshToken")
+        if(!user){
+            //If user is not found
+            throw new apierror(404,"Something has gone Terribly Wrong!")
+            //this should not execute
+        }
+        return res.status(200).json(
+            //Return success response
+            new apiresponse(200,user,"User found successfully!")
+        )
+    }
+    throw new apierror(403,"Unauthorized Request!")
+})
 module.exports = {
     registerUser,
     loginUser,
@@ -439,6 +476,7 @@ module.exports = {
     deleteVehicle, 
     getCurrentUser, 
     promoteAdmin,
-    demoteAdmin
+    demoteAdmin,
+    getUserSlug
 }
 //Export User Controller Functions

@@ -10,7 +10,8 @@ const{
     deleteVehicle, 
     getCurrentUser,
     promoteAdmin,
-    demoteAdmin
+    demoteAdmin,
+    getUserSlug
     } = require('../controllers/user.controller.js');
 //Import User Controller from user.controller.js
 
@@ -31,6 +32,8 @@ router.route("/login").post(loginUser);
 router.route("/get-user").get(verifyJWT, getCurrentUser)
 //Secure Get Current User Route
 router.route("/get-vehicle").get(verifyJWT, getUserVehicle)
+//Secure Get Vehicle Route
+router.route("/:slug").get(verifyJWT, getUserSlug)
 //Secure Get Vehicle Route
 router.route("/logout").post(verifyJWT, logoutUser);
 //Secure Logout User Route
