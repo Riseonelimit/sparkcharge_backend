@@ -30,6 +30,10 @@ const stationSchema = new mongoose.Schema({
         required: [true, "State cannot be empty!"],
         minlength: [3, "State must be at least 3 characters!"],
         maxlength: [32, "State must be at most 32 characters!"]
+    },
+    manager: {
+        type: [],
+        required: false,
     }
 },
 {timestamps: true});

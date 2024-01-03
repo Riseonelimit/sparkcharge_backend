@@ -223,6 +223,7 @@ const deleteAccount = asyncHandler(async (req, res) => {
         //If password is incorrect
         throw new apierror(401,"Incorrect Password! Termination Aborted!")
     }
+    const terminatevehicle = await Vehicle.deleteMany({uid: req.user._id})
     const terminateAccount = await User.findByIdAndDelete(req.user._id)
     if(!terminateAccount){
         //If user is not found

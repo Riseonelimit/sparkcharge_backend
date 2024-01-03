@@ -2,6 +2,8 @@ const Station = require('../models/station.model.js');
 //Import Station Model
 const Slot = require('../models/slot.model.js');
 //Import Slot Model
+const User = require('../models/user.model.js');
+//Import User Model
 const asyncHandler = require('../utils/asyncHandler.js');
 //Import Async Handler from utils/asyncHandler.js
 const apierror = require('../utils/apierror.js');
@@ -39,9 +41,93 @@ const addStation = asyncHandler(async (req, res) => {
     }
 })
 
-const addSlot = asyncHandler(async (req, res) => {
+const promoteManager = asyncHandler(async(req, res)=> {
     const isAdmin = req.user.isAdmin;
     if(!isAdmin){
+        //If not an admin
+        throw new apierror(403, "You are not authorized to access this route!")
+    }
+    const {email,station_name} = req.body;
+    if([email].some((field)=>field === undefined || (field?.trim() === ""))){
+        //If any of the fields are undefined or empty
+        throw new apierror(400,"Please fill all the fields!")
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if(!emailRegex.test(email)){
+        //If email is invalid
+        throw new apierror(400, "Please enter a valid email address!")
+    }
+    const findUser = await User.findOne({email: email});
+    if(!findUser){
+        //If user does not exist
+        throw new apierror(404, "User does not exist!")
+    }
+    const stationExists = await Station.findOne({station_name: station_name.toUpperCase()});
+    if(!stationExists){
+        //If station does not exist
+        throw new apierror(404, "Station does not exist!")
+    }
+    const promoteUser = await Station.findByIdAndUpdate(stationExists._id, {
+        $push: {
+            manager: findUser._id
+        }
+    }, {new: true});
+    if(!promoteUser){
+        //If user is not promoted
+        throw new apierror(500, "Failed to Promote User!")
+    }
+    return res.status(200)
+    .json(new apiresponse(200, promoteUser , "User Promoted Successfully!"))
+});
+
+const demoteManager = asyncHandler(async(req, res)=> {
+    const isAdmin = req.user.isAdmin;
+    if(!isAdmin){
+        //If not an admin
+        throw new apierror(403, "You are not authorized to access this route!")
+    }
+    const {email,station_name} = req.body;
+    if([email].some((field)=>field === undefined || (field?.trim() === ""))){
+        //If any of the fields are undefined or empty
+        throw new apierror(400,"Please fill all the fields!")
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if(!emailRegex.test(email)){
+        //If email is invalid
+        throw new apierror(400, "Please enter a valid email address!")
+    }
+    const findUser = await User.findOne({email: email});
+    if(!findUser){
+        //If user does not exist
+        throw new apierror(404, "User does not exist!")
+    }
+    const stationExists = await Station.findOne({station_name: station_name.toUpperCase()});
+    if(!stationExists){
+        //If station does not exist
+        throw new apierror(404, "Station does not exist!")
+    }
+    const isManager = stationExists.manager.includes(findUser._id);
+    if(!isManager){
+        //If user is not a manager
+        throw new apierror(400, "User is not a manager!")
+    }
+    const demoteUser = await Station.findByIdAndUpdate(stationExists._id, {
+        $pull: {
+            manager: findUser._id
+        }
+    }, {new: true});
+    if(!demoteUser){
+        //If user is not demoted
+        throw new apierror(500, "Failed to Demote User!")
+    }
+    return res.status(200)
+    .json(new apiresponse(200, demoteUser , "User Demoted Successfully!"))
+});
+
+const addSlot = asyncHandler(async (req, res) => {
+    const isAdmin = req.user.isAdmin;
+    const isManager = await Station.findOne({manager: req.user._id});
+    if(!isAdmin && !isManager){
         //If not an admin
         throw new apierror(403, "You are not authorized to access this route!")
     }
@@ -70,7 +156,8 @@ const addSlot = asyncHandler(async (req, res) => {
 
 const removeSlot = asyncHandler(async (req, res) => {
     const isAdmin = req.user.isAdmin;
-    if(!isAdmin){
+    const isManager = await Station.findOne({manager: req.user._id});
+    if(!isAdmin && !isManager){
         //If not an admin
         throw new apierror(403, "You are not authorized to access this route!")
     }
@@ -208,6 +295,8 @@ module.exports ={
     removeSlot,
     getStationSlotByLocation,
     getSlotByStation,
-    getStationBySlug
+    getStationBySlug,
+    promoteManager,
+    demoteManager
 }
 //Export Station Controller Functions

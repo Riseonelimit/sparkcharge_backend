@@ -6,7 +6,9 @@ const{
     removeSlot,
     getStationSlotByLocation,
     getSlotByStation,
-    getStationBySlug
+    getStationBySlug,
+    promoteManager,
+    demoteManager
 } = require('../controllers/station.controller.js');
 //Import User Controller from user.controller.js
 
@@ -34,6 +36,10 @@ router.route("/add-slot").post(verifyJWT, addSlot)
 //Secure Add Slot Route
 router.route("/remove-slot").post(verifyJWT, removeSlot)
 //Secure Remove Slot Route
+router.route("/promote-manager").post(verifyJWT, promoteManager)
+//Secure Promote Manager Route
+router.route("/demote-manager").post(verifyJWT, demoteManager)
+//Secure Demote Manager Route
 
 module.exports = router;
 //Export User Router
