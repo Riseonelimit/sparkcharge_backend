@@ -4,10 +4,17 @@ const db_conn = require("./db/db_conn.js");
 //Import Database Connection Function
 const app = require("./app.js");
 //Import Express App
+const https = require('https');
+const fs = require('fs');
+const options = {
+  key: fs.readFileSync(`${__dirname}/cert/privkey.pem`),
+  cert: fs.readFileSync(`${__dirname}/cert/cert.pem`),
+};
+const server = https.createServer(options, app);
 db_conn()
 //Establish Database Connection
 .then(() => {
-    app.listen(process.env.PORT || 8081, () => {
+    server.listen(process.env.PORT || 8081, () => {
     //Start Express Server
         console.log(`Server listening at PORT ${process.env.PORT}`);
     });
