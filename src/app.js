@@ -10,6 +10,8 @@ const morgan = require('morgan');
 //Import Morgan for Logging
 const cron = require('node-cron');
 //Execute daily tasks
+const cronjob = require('./utils/cronjob.js');
+//Import Cron Job
 app.use(cors({
     origin: process.env.CORS_ORIGIN,
     //Origin of Request
