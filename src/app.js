@@ -39,7 +39,6 @@ cron.schedule('0 3 * * *', () => {
 const userRouter = require("./routes/user.routes.js");
 const stationRouter = require("./routes/station.routes.js");
 const bookingRouter = require("./routes/booking.routes.js");
-const { populate } = require("./models/station.model.js");
 //Import User, Station, Booking Routes from user.routes.js
 
 
