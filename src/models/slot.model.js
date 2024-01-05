@@ -30,7 +30,10 @@ const slotsSchema = new mongoose.Schema({
         ],
         required: true,
         uppercase: true
-    }
+    },
+    availableSlot: {
+        type: Object,
+    },
 },{timestamps: true});
 //slotsSchema.plugin(mongooseAggregatePaginate);
 

@@ -8,7 +8,7 @@ const{
     getSlotByStation,
     getStationBySlug,
     promoteManager,
-    demoteManager
+    demoteManager,
 } = require('../controllers/station.controller.js');
 //Import User Controller from user.controller.js
 

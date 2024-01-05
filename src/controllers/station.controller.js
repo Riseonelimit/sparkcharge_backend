@@ -10,6 +10,8 @@ const apierror = require('../utils/apierror.js');
 //Import API Error from utils/apierror.js
 const apiresponse = require('../utils/apiresponse.js');
 //Import API Response from utils/apiresponse.js
+const populateSlot = require('../utils/populateSlot.js');
+//Import Populate Slot from utils/populateSlot.js
 
 const addStation = asyncHandler(async (req, res) => {
     const isAdmin = req.user.isAdmin;
@@ -144,12 +146,13 @@ const addSlot = asyncHandler(async (req, res) => {
     const createSlot = await Slot.create({
         sid: stationExists._id,
         stationname: station_name.toUpperCase(),
-        type: type.toUpperCase()
+        type: type.toUpperCase(),
     });
     if(!createSlot){
         //If slot is not created
         throw new apierror(500, "Failed to Create Slot!")
     }
+    populateSlot();
     return res.status(201)
     .json(new apiresponse(201, createSlot , "Slot Created Successfully!"))
 })
@@ -272,6 +275,7 @@ const getSlotByStation = asyncHandler(async (req, res) => {
     return res.status(200)
     .json(new apiresponse(200,slots, "Slots Found!"))
 })
+
 const getStationBySlug = asyncHandler(async (req, res) => {
     const slug  = req.params.slug;
     if([slug].some((field)=>field === undefined || (field?.trim() === ""))){
@@ -297,6 +301,6 @@ module.exports ={
     getSlotByStation,
     getStationBySlug,
     promoteManager,
-    demoteManager
+    demoteManager,
 }
 //Export Station Controller Functions

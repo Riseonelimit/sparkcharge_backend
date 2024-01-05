@@ -8,6 +8,8 @@ const app = express();
 //Create Express App
 const morgan = require('morgan');
 //Import Morgan for Logging
+const cron = require('node-cron');
+//Execute daily tasks
 app.use(cors({
     origin: process.env.CORS_ORIGIN,
     //Origin of Request
@@ -28,10 +30,16 @@ app.use(cookieParser());
 //Express Cookie Parser
 app.use(morgan('dev'));
 //Express Morgan Logger
+  
+cron.schedule('0 3 * * *', () => {
+    //execute daily at 3am
+    cronjob();
+});
 
 const userRouter = require("./routes/user.routes.js");
 const stationRouter = require("./routes/station.routes.js");
 const bookingRouter = require("./routes/booking.routes.js");
+const { populate } = require("./models/station.model.js");
 //Import User, Station, Booking Routes from user.routes.js
 
 
