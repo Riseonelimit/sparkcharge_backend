@@ -1,24 +1,26 @@
-const User=require('../models/user.model.js');
+const User=require('../models/user.model.js')
 //Import User Model from models/user.model.js
-const Vehicle = require('../models/vehicle.model.js');
+const Vehicle = require('../models/vehicle.model.js')
 //Import Vehicle Model from models/vehicle.model.js
-const asyncHandler = require('../utils/asyncHandler.js');
+const Station = require('../models/station.model.js')
+//Import Station Model from models/station.model.js
+const asyncHandler = require('../utils/asyncHandler.js')
 //Import Async Handler from utils/asyncHandler.js
-const apierror = require('../utils/apierror.js');
+const apierror = require('../utils/apierror.js')
 //Import API Error from utils/apierror.js
-const apiresponse = require('../utils/apiresponse.js');
+const apiresponse = require('../utils/apiresponse.js')
 //Import API Response from utils/apiresponse.js
-const jwt = require('jsonwebtoken');
+const jwt = require('jsonwebtoken')
 //Import JWT fronm jsonwebtoken
 
 const registerUser = asyncHandler(async (req, res) => {
     const {name,email,phone,password} = req.body
     //Get name, email, phone and password from request body
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     //Regex to validate email
-    const phoneRegex = /^\d{10}$/;
+    const phoneRegex = /^\d{10}$/
     //Regex to validate phone number
-    const passwordRegex = /^(?=.*[a-zA-Z\d]).{8,}$/;
+    const passwordRegex = /^(?=.*[a-zA-Z\d]).{8,}$/
     //Regex to validate password
 
     if([name,email,phone,password].some((field)=>field === undefined || (field?.trim() === ""))){
@@ -76,9 +78,9 @@ const registerUser = asyncHandler(async (req, res) => {
 })
 
 const loginUser = asyncHandler(async (req, res) => {
-    const {email, password}= req.body;
+    const {email, password}= req.body
     //Get email and password from request body
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     //Regex to validate email
 
     if([email,password].some((field)=>field === undefined || (field?.trim() === ""))){
@@ -104,7 +106,7 @@ const loginUser = asyncHandler(async (req, res) => {
         throw new apierror(401,"Incorrect Password!")
     }
 
-    const {accessToken, refreshToken} = await generateAccessAndRefreshTokens(user._id);
+    const {accessToken, refreshToken} = await generateAccessAndRefreshTokens(user._id)
     //Generate access and refresh tokens by calling generateAccessAndRefreshTokens function
 
     const loggedInUser = await User.findById(user._id).select("-password -refreshToken")
@@ -238,7 +240,7 @@ const deleteAccount = asyncHandler(async (req, res) => {
 const changePassword = asyncHandler(async (req, res) => {
     const {oldPassword, newPassword, confirmNewPassword} = req.body
     //Get old password and new password from request body
-    const passwordRegex = /^(?=.*[a-zA-Z\d]).{8,}$/;
+    const passwordRegex = /^(?=.*[a-zA-Z\d]).{8,}$/
     //Regex to validate password
 
     if([oldPassword,newPassword,confirmNewPassword].some((field)=>field === undefined || (field?.trim() === ""))){
@@ -269,6 +271,7 @@ const changePassword = asyncHandler(async (req, res) => {
     return res.status(200)
     .json(new apiresponse(200,{},"Password changed successfully!"))
 })
+
 const getUserVehicle = asyncHandler(async (req, res) => {
     const vehicle = await Vehicle.find({uid: req.user._id})
     //Find vehicle by id
@@ -279,10 +282,12 @@ const getUserVehicle = asyncHandler(async (req, res) => {
     return res.status(200)
     .json(new apiresponse(200,vehicle,"Vehicle found successfully!"))
 })
+
 const getCurrentUser = asyncHandler(async (req, res) => {
     return res.status(200)
     .json(new apiresponse(200,req.user,"User found successfully!"))
 })
+
 const addVehicle = asyncHandler(async (req, res) => {
     const {registrationNum, company} = req.body
     //Get registration number from request body
@@ -315,6 +320,7 @@ const addVehicle = asyncHandler(async (req, res) => {
         new apiresponse(200,vehicle,"Vehicle registered successfully!")
     )
 })
+
 const deleteVehicle = asyncHandler(async (req, res) => {
     const registrationNum = req.body.registrationNumber
     if(registrationNum === undefined || (registrationNum?.trim() === "")){
@@ -344,8 +350,9 @@ const deleteVehicle = asyncHandler(async (req, res) => {
     return res.status(200)
     .json(new apiresponse(200,{},"Vehicle Deleted Successfully!"))
 })
+
 const promoteAdmin = asyncHandler(async (req, res) => {
-    const isAdmin = req.user.isAdmin;
+    const isAdmin = req.user.isAdmin
     if(!isAdmin){
         //If not an admin
         throw new apierror(403, "You are not authorized to access this route!")
@@ -384,8 +391,9 @@ const promoteAdmin = asyncHandler(async (req, res) => {
     return res.status(200)
     .json(new apiresponse(200,makeAdmin,"User Promoted to Admin Successfully!"))
 })
+
 const demoteAdmin = asyncHandler(async (req, res) => {
-    const isAdmin = req.user.isAdmin;
+    const isAdmin = req.user.isAdmin
     if(!isAdmin){
         //If not an admin
         throw new apierror(403, "You are not authorized to access this route!")
@@ -428,6 +436,7 @@ const demoteAdmin = asyncHandler(async (req, res) => {
     return res.status(200)
     .json(new apiresponse(200,remAdmin,"Admin demoted Successfully!"))
 })
+
 const getUserSlug = asyncHandler(async (req, res) => {
     const slug = req.params.slug
     if(slug === undefined || (slug?.trim() === "")){
@@ -465,6 +474,45 @@ const getUserSlug = asyncHandler(async (req, res) => {
     }
     throw new apierror(403,"Unauthorized Request!")
 })
+
+const walletTopUp = asyncHandler(async (req, res) => {
+    const isManager = await Station.findOne({
+        manager: req.user._id
+    })
+    if(req.user.isAdmin !== true && !isManager){
+        throw new apierror(403,"Unauthorized Access!")
+    }
+    const {amount, email}= req.body
+    if([email,amount].some((field)=>field === undefined || (field?.trim() === ""))){
+        //If any of the fields are undefined or empty
+        throw new apierror(400,"Please fill all the fields!")
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    const amountRegex = /^[0-9]{1,4}$/
+    if(emailRegex.test(email) === false){
+        //If email is invalid
+        throw new apierror(400,"Please enter a valid email!")
+    }
+    if(amountRegex.test(amount) === false){
+        //If amount is invalid
+        throw new apierror(400,"Please enter a valid amount!")
+    }
+    const walletLoad = await User.findOneAndUpdate({
+        email: email
+    },{
+        $inc: {
+            wallet: amount
+        }
+    },{
+        new: true
+    }).select("-password -refreshToken")
+    if(!walletLoad){
+        throw new apierror(404,"User not found!")
+    }
+    return res.status(200).json(
+        new apiresponse(200,walletLoad,"Wallet Top Up Successful!")
+    )
+})
 module.exports = {
     registerUser,
     loginUser,
@@ -478,6 +526,7 @@ module.exports = {
     getCurrentUser, 
     promoteAdmin,
     demoteAdmin,
-    getUserSlug
+    getUserSlug,
+    walletTopUp
 }
 //Export User Controller Functions

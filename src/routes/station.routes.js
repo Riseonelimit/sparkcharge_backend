@@ -9,15 +9,15 @@ const{
     getStationBySlug,
     promoteManager,
     demoteManager,
-} = require('../controllers/station.controller.js');
+} = require('../controllers/station.controller.js')
 //Import User Controller from user.controller.js
 
-const { verifyJWT } = require('../middlewares/auth.middleware.js');
+const { verifyJWT } = require('../middlewares/auth.middleware.js')
 //Import JWT Verification Middleware from auth.middleware.js
 
-const Router = require('express').Router;
+const Router = require('express').Router
 //Import Express Router
-const router = Router();
+const router = Router()
 //Create Router
 
 router.route("/locate-station").get(verifyJWT, getStationByLocation)
@@ -41,5 +41,5 @@ router.route("/promote-manager").post(verifyJWT, promoteManager)
 router.route("/demote-manager").post(verifyJWT, demoteManager)
 //Secure Demote Manager Route
 
-module.exports = router;
+module.exports = router
 //Export User Router

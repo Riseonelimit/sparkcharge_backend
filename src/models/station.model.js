@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const mongoose = require('mongoose')
 //Import Mongoose
 const stationSchema = new mongoose.Schema({
     sid: {
@@ -36,12 +36,12 @@ const stationSchema = new mongoose.Schema({
         required: false,
     }
 },
-{timestamps: true});
+{timestamps: true})
 //Add createdAt and updatedAt fields automatically managed by Mongoose
 
 
-const Station = mongoose.model("Station", stationSchema);
+const Station = mongoose.model("Station", stationSchema)
 //Create Station Model
 
-module.exports = Station;
+module.exports = Station
 //Export Station Model

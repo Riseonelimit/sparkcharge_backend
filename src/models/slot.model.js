@@ -1,7 +1,7 @@
-const mongoose = require('mongoose');
+const mongoose = require('mongoose')
 //import mongoose
 
-//const mongooseAggregatePaginate = require('mongoose-aggregate-paginate-v2');
+//const mongooseAggregatePaginate = require('mongoose-aggregate-paginate-v2')
 
 const slotsSchema = new mongoose.Schema({
     sid: {
@@ -34,11 +34,11 @@ const slotsSchema = new mongoose.Schema({
     availableSlot: {
         type: Object,
     },
-},{timestamps: true});
-//slotsSchema.plugin(mongooseAggregatePaginate);
+},{timestamps: true})
+//slotsSchema.plugin(mongooseAggregatePaginate)
 
-const Slots = mongoose.model("Slots", slotsSchema);
+const Slots = mongoose.model("Slots", slotsSchema)
 //create slots model
 
-module.exports = Slots;
+module.exports = Slots
 //export slots model

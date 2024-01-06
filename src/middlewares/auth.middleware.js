@@ -1,10 +1,10 @@
-const asyncHandler = require("../utils/asyncHandler");
+const asyncHandler = require("../utils/asyncHandler")
 //Import Async Handler from utils/asyncHandler.js
-const apierror = require("../utils/apierror");
+const apierror = require("../utils/apierror")
 //Import API Error from utils/apierror.js
-const jwt = require("jsonwebtoken");
+const jwt = require("jsonwebtoken")
 //Import JWT fronm jsonwebtoken
-const User = require("../models/user.model");
+const User = require("../models/user.model")
 //Import User Model from models/user.model.js
 const verifyJWT = asyncHandler(async (req, res, next) => {
     try {
@@ -27,7 +27,7 @@ const verifyJWT = asyncHandler(async (req, res, next) => {
             throw new apierror(401,"Invalid Access Token!")
         }
 
-        req.user = user;
+        req.user = user
         //Set req.user to user
         next()
         //Call next middleware

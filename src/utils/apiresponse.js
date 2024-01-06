@@ -8,5 +8,5 @@ class apiresponse{
 }
 //Provides a convenient way to create consistent and structured API responses
 
-module.exports = apiresponse;
+module.exports = apiresponse
 //Export ApiResponse Class

@@ -1,8 +1,8 @@
-const mongoose = require("mongoose");
+const mongoose = require("mongoose")
 //Import Mongoose
-const jwt = require("jsonwebtoken");
+const jwt = require("jsonwebtoken")
 //Import JWT
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcrypt")
 //Import Bcrypt
 
 const userSchema = new mongoose.Schema({
@@ -17,7 +17,7 @@ const userSchema = new mongoose.Schema({
         minlength: [3, "Name must be at least 3 characters!"],
         maxlength: [64, "Name must be at most 64 characters!"],
         validator: function (v) {
-            return /^[a-zA-Z ]+$/.test(v);
+            return /^[a-zA-Z ]+$/.test(v)
             //Regex to validate name
         }
     },
@@ -31,7 +31,7 @@ const userSchema = new mongoose.Schema({
         index: true,
         validate: {
             validator: function (v) {
-                return /^([\w-\.]+@([\w-]+\.)+[\w-]{2,4})?$/.test(v);
+                return /^([\w-\.]+@([\w-]+\.)+[\w-]{2,4})?$/.test(v)
                 //Regex to validate email
             },
             message: (props) => `${props.value} is not a valid email address!`
@@ -43,7 +43,7 @@ const userSchema = new mongoose.Schema({
         unique: [true,"Account already exists with this phone number!"],
         validate: {
             validator: function (v) {
-                return /^[0-9]{10}$/.test(v);
+                return /^[0-9]{10}$/.test(v)
                 //Regex to validate phone number
             },
             message: (props) => `${props.value} is not a valid phone number!`
@@ -56,7 +56,7 @@ const userSchema = new mongoose.Schema({
         maxlength: [64, "Password must be at most 64 characters!"],
         validate: {
             validator: function (v) {
-                return /^(?=.*[a-zA-Z\d]).{8,}$/.test(v);
+                return /^(?=.*[a-zA-Z\d]).{8,}$/.test(v)
                 //Regex to validate password
             },
             message: (props) => `${props.value} is not a valid password!`,
@@ -68,13 +68,17 @@ const userSchema = new mongoose.Schema({
     isAdmin: {
         type: Boolean,
         default: false
+    },
+    wallet: {
+        type: Number,
+        default: 0
     }
-},{timestamps: true});
+},{timestamps: true})
 //Add createdAt and updatedAt fields automatically managed by Mongoose
 
 
 userSchema.pre("save", async function (next) {
-    if(!this.isModified("password")) return next();
+    if(!this.isModified("password")) return next()
     //If password is not modified, skip this step
 
     this.password = await bcrypt.hash(this.password, 10)
@@ -110,8 +114,8 @@ userSchema.methods.generateRefreshToken = function () {
     })
 }
 
-const User = mongoose.model("User", userSchema);
+const User = mongoose.model("User", userSchema)
 //Create User Model
 
-module.exports = User;
+module.exports = User
 //Export User Model

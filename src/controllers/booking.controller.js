@@ -1,79 +1,216 @@
-const Booking = require('../models/booking.model.js');
+const Booking = require('../models/booking.model.js')
 //Import Booking Model from models/booking.model.js
-const User=require('../models/user.model.js');
+const User=require('../models/user.model.js')
 //Import User Model from models/user.model.js //YET TO BE USED
-const Vehicle = require('../models/vehicle.model.js');
+const Vehicle = require('../models/vehicle.model.js')
 //Import Vehicle Model from models/vehicle.model.js
-const Slot = require('../models/slot.model.js');
+const Station = require('../models/station.model.js')
+//Import Station Model from models/station.model.js
+const Slot = require('../models/slot.model.js')
 //Import Slot Model from models/slot.model.js
-const asyncHandler = require('../utils/asyncHandler.js');
+const asyncHandler = require('../utils/asyncHandler.js')
 //Import Async Handler from utils/asyncHandler.js
-const apierror = require('../utils/apierror.js');
+const apierror = require('../utils/apierror.js')
 //Import API Error from utils/apierror.js
-const apiresponse = require('../utils/apiresponse.js');
+const apiresponse = require('../utils/apiresponse.js')
 //Import API Response from utils/apiresponse.js
 const reserve = asyncHandler(async (req, res) => {
-    const {slotType, bookingDate, bookingTime, registrationNumber} = req.body;
-    if([slotType, bookingDate, bookingTime, registrationNumber].some((field)=>field === undefined || (field?.trim() === ""))){
+    const {stationName, slotType, bookingDate, bookingTime, registrationNumber} = req.body
+    if([stationName, slotType, bookingDate, bookingTime, registrationNumber].some((field)=>field === undefined || (field?.trim() === ""))){
         //If any of the fields are undefined or empty
         throw new apierror(400,"Please fill all the fields!")
     }
-    const selectedDate = new Date(bookingDate);
+    const selectedDate = new Date(bookingDate)
+    const today = new Date()
+    const todayy = new Date()
+    const bookDay = selectedDate.getDate()
     // Check if the selected date is valid
     if (isNaN(selectedDate.getTime())) {
-        throw new apierror(400, "Invalid date format!");
+        throw new apierror(400, "Invalid date format!")
     }
     // Check if the selected date is not older than today
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    today.setHours(0, 0, 0, 0)
     if (selectedDate < today) {
-        throw new apierror(400, "Selected date cannot be older than today!");
+        throw new apierror(400, "Booking date cannot be earlier than today!")
     }
-    if(bookingTime < 0 || bookingTime > 16){
-        throw new apierror(400, "Invalid time slot!");
+    if(bookingTime < 1 || bookingTime > 16){
+        throw new apierror(400, "Invalid time slot!")
     }
     //Check if TimeSlot is valid
-    const slot = await Slot.findOne({type:slotType});
-    if(!slot){
-        throw new apierror(400, "Specified Type of Slot is not available!");
+    function getPassedTime(bT){
+        switch(bT){
+            case 1:
+                return "0:00"
+            case 2:
+                return "1:30"
+            case 3:
+                return "3:00"
+            case 4:
+                return "4:30"
+            case 5:
+                return "6:00"
+            case 6:
+                return "7:30"
+            case 7:
+                return "9:00"
+            case 8:
+                return "10:30"
+            case 9:
+                return "12:00"
+            case 10:
+                return "13:30"
+            case 11:
+                return "15:00"
+            case 12:
+                return "16:30"
+            case 13:
+                return "18:00"
+            case 14:
+                return "19:30"
+            case 15:
+                return "21:00"
+            case 16:
+                return "22:30"
+        }
     }
-    //Check if the slot-type is available
-    const vehicle = await Vehicle.findOne({registrationNumber: registrationNumber.toUpperCase()});
-    if(!vehicle){
-        throw new apierror(404, "Vehicle not found!");
+    function compareTime(time1, time2){
+        const [hours1, minutes1] = time1.split(":").map(Number)
+        const totalMinutes1 = hours1 * 60 + minutes1
+        const [hours2, minutes2] = time2.split(":").map(Number)
+        const totalMinutes2 = hours2 * 60 + minutes2
+        if (totalMinutes1 > totalMinutes2) {
+            return 1 // Bookingtime is later
+        } else if (totalMinutes1 < totalMinutes2) {
+            return 0 // Bookingtime is earlier
+        } else {
+            return 0 // both times are equal
+        }
     }
+    if(todayy.getDate() == selectedDate.getDate()){
+        const hours = todayy.getHours()
+        const minutes = todayy.getMinutes()
+        const currentTime = `${hours}:${minutes}`
+        const bookTime = getPassedTime(parseInt(bookingTime))
+        if(compareTime(bookTime, currentTime) == 0){
+            throw new apierror(400, "Booking Time has already passed!")
+        }
+    }
+    //Check if Booking Time has already Passed
+    const checkStation = await Station.findOne({
+        station_name:stationName
+    })
+    if(!checkStation){
+        throw new apierror(400, "Station not found!")
+    }
+    //Check if the station exists
+    const checkVehicle = await Vehicle.findOne({
+        registrationNumber: registrationNumber.toUpperCase()
+    })
+    if (!checkVehicle) {
+        throw new apierror(400, "Vehicle not found!")
+    }
+    if (checkVehicle.uid.toString() !== req.user._id.toString()) {
+        throw new apierror(400, "Vehicle not registered to this user!")
+    }
+    
+    const availSlot = await Slot.findOne({
+        sid:checkStation._id,
+        type:slotType.toUpperCase(),
+        [`availableSlot.${bookDay}`]:{
+            $in: [parseInt(bookingTime)]
+        }
+    })
+    if(!availSlot){
+        throw new apierror(400, "Sorry! Specified Slot is not Available")
+    }
+    //Check if the slot is available
+    const updateAvailSlot = await Slot.updateOne(availSlot,{
+        $pull:{
+            [`availableSlot.${bookDay}`]: parseInt(bookingTime)
+        }
+    })
+    if(!updateAvailSlot){
+        throw new apierror(500, "Failed to update slot! Contact Administrator")
+        //This should never execute
+    }
+
     const reservation = await Booking.create({
         uid:req.user._id,
-        booking: {
-            bookingDate: selectedDate,
-            bookingTime: bookingTime
-        },
-        bookingSlot: slot._id,
-        vehicleid: vehicle._id
-    });
+        bookingDate: selectedDate,
+        bookingTime: bookingTime,
+        bookingSlot: availSlot._id,
+        vehicleid: checkVehicle._id
+    })
     if(!reservation){
-        throw new apierror(500, "Something went wrong!");
+        throw new apierror(500, "Something went terribly wrong! Please try again later! Contact Administrator")
+        //This should never execute
     }
+
     res.status(201)
-    .json(new apiresponse(201,reservation, "Reservation successful!"));
+    .json(new apiresponse(201,reservation, "Reservation successfull!"))
 })
+
 const cancelReservation = asyncHandler(async (req, res) => {
-    const bookingId = req.body.bookingId;
+    const bookingId = req.body.bookingId
     if(bookingId === undefined || bookingId.trim() === ""){
-        throw new apierror(400, "Please fill all the fields!");
+        throw new apierror(400, "Please fill all the fields!")
     }
-    const reservation = await Booking.findOne({_id: bookingId, uid: req.user._id});
+    const reservation = await Booking.findOne({
+        _id: bookingId, 
+        uid: req.user._id
+    })
     if(!reservation){
-        throw new apierror(404, "Reservation not found!");
+        throw new apierror(404, "Reservation not found / is not linked to this user!")
     }
-    const deletedReservation = await Booking.deleteOne({_id: bookingId, uid: req.user._id});
+    if(reservation.bookingDate < new Date()){
+        throw new apierror(400, "Cannot cancel past reservations!")
+    }
+    const querySlot = await Slot.findOne({
+        _id: reservation.bookingSlot,
+        [`availableSlot.${reservation.bookingDate.getDate()}`]:{
+            $in: [reservation.bookingTime]
+        }
+    })
+    if(!querySlot){
+        const updateAvailSlot = await Slot.updateOne({
+            _id: reservation.bookingSlot
+        },{
+            $push:{
+                [`availableSlot.${reservation.bookingDate.getDate()}`]: reservation.bookingTime
+            }
+        })
+        if(!updateAvailSlot){
+            throw new apierror(500, "Failed to update slot! Contact Administrator")
+            //This should never execute
+        }
+    }
+    //AVOIDING DUPLICATE ENTRIES IN AVAILABLESLOT
+
+    const deletedReservation = await Booking.deleteOne({
+        _id: bookingId, 
+        uid: req.user._id
+    })
     if(!deletedReservation){
-        throw new apierror(500, "Failed to terminate reservation!");
+        throw new apierror(500, "Failed to terminate reservation!")
     }
     res.status(200)
-    .json(new apiresponse(200, deletedReservation, "Reservation cancelled successfully!"));
+    .json(new apiresponse(200, deletedReservation, "Reservation cancelled successfully!"))
 })
+
+const getUserBooking = asyncHandler(async (req, res) => {
+    const email = req.user.email
+    const bookings = await Booking.find({
+        uid: req.user._id
+    })
+    if(bookings.length === 0 || !bookings){
+        throw new apierror(404, "No bookings found!")
+    }
+    res.status(200)
+    .json(new apiresponse(200, bookings, "Bookings found!"))
+})
+
 module.exports ={
     reserve,
     cancelReservation,
+    getUserBooking
 }

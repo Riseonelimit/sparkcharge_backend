@@ -11,22 +11,23 @@ const{
     getCurrentUser,
     promoteAdmin,
     demoteAdmin,
-    getUserSlug
-    } = require('../controllers/user.controller.js');
+    getUserSlug,
+    walletTopUp
+    } = require('../controllers/user.controller.js')
 //Import User Controller from user.controller.js
 
-const { verifyJWT } = require('../middlewares/auth.middleware.js');
+const { verifyJWT } = require('../middlewares/auth.middleware.js')
 //Import JWT Verification Middleware from auth.middleware.js
 
-const Router = require('express').Router;
+const Router = require('express').Router
 //Import Express Router
-const router = Router();
+const router = Router()
 //Create Router
 
-router.route("/register").post(registerUser);
+router.route("/register").post(registerUser)
 //Register User Route
 
-router.route("/login").post(loginUser);
+router.route("/login").post(loginUser)
 //Login User Route
 
 router.route("/get-user").get(verifyJWT, getCurrentUser)
@@ -35,7 +36,7 @@ router.route("/get-vehicle").get(verifyJWT, getUserVehicle)
 //Secure Get Vehicle Route
 router.route("/:slug").get(verifyJWT, getUserSlug)
 //Secure Get Vehicle Route
-router.route("/logout").post(verifyJWT, logoutUser);
+router.route("/logout").post(verifyJWT, logoutUser)
 //Secure Logout User Route
 router.route("/refresh-token").post(verifyJWT, refreshAccessToken)
 //Secure Refresh Access Token Route
@@ -51,6 +52,7 @@ router.route("/promote-admin").post(verifyJWT, promoteAdmin)
 //Secure Promote Admin Route
 router.route("/demote-admin").post(verifyJWT, demoteAdmin)
 //Secure Demote Admin Route
+router.route("/wallet-top-up").post(verifyJWT, walletTopUp)
 
-module.exports = router;
+module.exports = router
 //Export User Router
