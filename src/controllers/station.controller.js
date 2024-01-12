@@ -208,12 +208,17 @@ const removeStation = asyncHandler(async (req, res) => {
 })
 
 const getStationByLocation = asyncHandler(async (req, res) => {
-    const { city, state } = req.body
+    const { city, state } = req.query
+
     if([city, state].some((field)=>field === undefined || (field?.trim() === ""))){
         //If any of the fields are undefined or empty
         throw new apierror(400,"Please fill all the fields!")
     }
-    const stations = await Station.find({city: city.toUpperCase(), state: state.toUpperCase()})
+    //[RISE]: NEW LOCATION STRING AS ENTIRE ADDRESS
+    const cityarr = city.toUpperCase().trim().split(", ")
+    const regex = new RegExp(`${city.toUpperCase()}`)
+
+    const stations = await Station.find({city:regex})
     if(!stations){
         //If station does not exist
         throw new apierror(404, "No Stations Found!")
