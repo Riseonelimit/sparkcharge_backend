@@ -16,7 +16,7 @@ const apiresponse = require('../utils/apiresponse.js')
 //Import API Response from utils/apiresponse.js
 const reserve = asyncHandler(async (req, res) => {
     const {stationName, slotType, bookingDate, bookingTime, registrationNumber} = req.body
-    if([stationName, slotType, bookingDate, bookingTime, registrationNumber].some((field)=>field === undefined || (field?.trim() === ""))){
+    if([stationName, slotType, bookingDate, bookingTime, registrationNumber].some((field)=>field === undefined || typeof field != 'string' || (field?.trim() === ""))){
         //If any of the fields are undefined or empty
         throw new apierror(400,"Please fill all the fields!")
     }
@@ -134,25 +134,24 @@ const reserve = asyncHandler(async (req, res) => {
         //This should never execute
     }
 
-    const reservation = await Booking.create({
-        uid:req.user._id,
-        bookingDate: selectedDate,
-        bookingTime: bookingTime,
-        bookingSlot: availSlot._id,
-        vehicleid: checkVehicle._id
-    })
-    if(!reservation){
+    try {
+        const reservation = await Booking.create({
+            uid:req.user._id,
+            bookingDate: selectedDate,
+            bookingTime: bookingTime,
+            bookingSlot: availSlot._id,
+            vehicleid: checkVehicle._id
+        })
+    } catch (error) {
         throw new apierror(500, "Something went terribly wrong! Please try again later! Contact Administrator")
-        //This should never execute
     }
-
     res.status(201)
     .json(new apiresponse(201,reservation, "Reservation successfull!"))
 })
 
 const cancelReservation = asyncHandler(async (req, res) => {
     const bookingId = req.body.bookingId
-    if(bookingId === undefined || bookingId.trim() === ""){
+    if(bookingId === undefined || typeof field != 'string' || bookingId.trim() === ""){
         throw new apierror(400, "Please fill all the fields!")
     }
     const reservation = await Booking.findOne({

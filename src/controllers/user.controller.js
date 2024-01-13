@@ -23,7 +23,7 @@ const registerUser = asyncHandler(async (req, res) => {
     const passwordRegex = /^(?=.*[a-zA-Z\d]).{8,}$/
     //Regex to validate password
 
-    if([name,email,phone,password].some((field)=>field === undefined || (field?.trim() === ""))){
+    if([name,email,phone,password].some((field)=>field === undefined || typeof field != 'string' || (field?.trim() === ""))){
         //If any of the fields are undefined or empty
         throw new apierror(400,"Please fill all the fields!")
     }
@@ -83,7 +83,7 @@ const loginUser = asyncHandler(async (req, res) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     //Regex to validate email
 
-    if([email,password].some((field)=>field === undefined || (field?.trim() === ""))){
+    if([email,password].some((field)=>field === undefined || typeof field != 'string' || (field?.trim() === ""))){
         //If any of the fields are undefined or empty
         throw new apierror(400,"Please fill all the fields!")
     }
@@ -150,8 +150,8 @@ const generateAccessAndRefreshTokens = async(userID)=>{
 const logoutUser = asyncHandler(async (req, res) => {
     await User.findByIdAndUpdate(req.user._id,{
         //Find user by id and update refreshToken to undefined
-        $set: {
-            refreshToken: undefined
+        $unset: {
+            refreshToken: 1
         }
     },{
         new: true
@@ -243,7 +243,7 @@ const changePassword = asyncHandler(async (req, res) => {
     const passwordRegex = /^(?=.*[a-zA-Z\d]).{8,}$/
     //Regex to validate password
 
-    if([oldPassword,newPassword,confirmNewPassword].some((field)=>field === undefined || (field?.trim() === ""))){
+    if([oldPassword,newPassword,confirmNewPassword].some((field)=>field === undefined || typeof field != 'string' || (field?.trim() === ""))){
         //If any of the fields are undefined or empty
         throw new apierror(400,"Please fill all the fields!")
     }
@@ -483,7 +483,7 @@ const walletTopUp = asyncHandler(async (req, res) => {
         throw new apierror(403,"Unauthorized Access!")
     }
     const {amount, email}= req.body
-    if([email,amount].some((field)=>field === undefined || (field?.trim() === ""))){
+    if([email,amount].some((field)=>field === undefined || typeof field != 'string' || (field?.trim() === ""))){
         //If any of the fields are undefined or empty
         throw new apierror(400,"Please fill all the fields!")
     }

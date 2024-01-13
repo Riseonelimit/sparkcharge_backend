@@ -1,3 +1,5 @@
+const apierror = require("./apierror")
+
 const asyncHandler = (requestHandler) => {
     //requestHandler is a function that takes in req, res, next
         return (req, res, next) => {
@@ -15,3 +17,4 @@ const asyncHandler = (requestHandler) => {
     
     module.exports = asyncHandler
     //Export asyncHandler
+    

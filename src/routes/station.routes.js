@@ -9,6 +9,7 @@ const{
     getStationBySlug,
     promoteManager,
     demoteManager,
+    getSlotTypeByStation
 } = require('../controllers/station.controller.js')
 //Import User Controller from user.controller.js
 
@@ -20,8 +21,10 @@ const Router = require('express').Router
 const router = Router()
 //Create Router
 
-router.route("/locate-station").get(verifyJWT, getStationByLocation)
+router.route("/locate-station").get(getStationByLocation)
 //Locate-Station Secure Route
+router.route("/getslottype").get(getSlotTypeByStation)
+//Locate Slot Type
 router.route("/locate-slot").get(verifyJWT, getStationSlotByLocation)
 //Locate-Slot Secure Route
 router.route("/getslotbystation").get(verifyJWT, getSlotByStation)

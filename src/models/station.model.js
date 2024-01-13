@@ -15,6 +15,14 @@ const stationSchema = new mongoose.Schema({
         minlength: [3, "Station Name must be at least 3 characters!"],
         maxlength: [32, "Station Name must be at most 32 characters!"]
     },
+    address: {
+        type: String,
+        trim: true,
+        uppercase: true,
+        required: [true, "Station Address cannot be empty!"],
+        minlength: [3, "Station Address must be at least 3 characters!"],
+        maxlength: [128, "Station Address must be at most 32 characters!"]
+    },
     city: {
         type: String,
         trim: true,
