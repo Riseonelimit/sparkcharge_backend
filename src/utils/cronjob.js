@@ -6,11 +6,10 @@ const Slot = require('../models/slot.model.js')
 
 const cronjob = async () =>{
     const today = new Date()
-    today.setDate(today.getDate()+1)
-    const tommorow = new Date(today)
-    tommorow.setDate(tommorow.getDate() + 1)
-    const dayAfterTommorow = new Date(today)
-    dayAfterTommorow.setDate(today.getDate() + 2)
+    const tomorrow = new Date(today)
+    tomorrow.setDate(today.getDate() + 1);
+    const dayAfterTomorrow = new Date(today)
+    dayAfterTomorrow.setDate(today.getDate() + 2)
     const prevDay = new Date()
     prevDay.setDate(today.getDate() - 1)
     const timeslot = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]
@@ -20,7 +19,6 @@ const cronjob = async () =>{
         }).select("id")
         
         if(slots.length > 0){
-            console.log(slots)
             const removeAvailableSlot = await Slot.updateMany({},{
                 $unset: {
                     [`availableSlot.${prevDay.getDate()}`] : 1
@@ -30,12 +28,12 @@ const cronjob = async () =>{
         //Delete Previous Day's Available Slot
         const updateDay = await Slot.updateMany(slots._id,{
             $set: {
-                [`availableSlot.${dayAfterTommorow.getDate()}`] : timeslot
+                [`availableSlot.${dayAfterTomorrow.getDate()}`] : timeslot
             }
         })
         //Adding Day After Tommorow's Available Slot
         const prevMonth = new Date()
-        prevMonth.setDate(prevMonth.getDate()-30)
+        prevMonth.setDate(today.getDate()-30)
         const bookingCleanup = await Booking.deleteMany({
             bookingDate: {
                 $lt: prevMonth

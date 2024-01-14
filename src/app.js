@@ -10,6 +10,7 @@ const morgan = require('morgan')
 //Import Morgan for Logging
 const cron = require('node-cron')
 //Execute daily tasks
+const cronjob = require('./utils/cronjob.js')
 
 app.use(cors({
     origin: process.env.CORS_ORIGIN,
@@ -36,7 +37,6 @@ cron.schedule('15 0 * * *', () => {
     //execute daily at 3am
     cronjob()
 })
-
 const userRouter = require("./routes/user.routes.js")
 const stationRouter = require("./routes/station.routes.js")
 const bookingRouter = require("./routes/booking.routes.js")
