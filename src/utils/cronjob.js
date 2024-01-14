@@ -1,7 +1,7 @@
 const Booking = require('../models/booking.model.js')
 const Slot = require('../models/slot.model.js')
-const Station = require('../models/station.model.js')
-const User = require('../models/user.model.js')
+//const Station = require('../models/station.model.js')
+//const User = require('../models/user.model.js')
 
 
 const cronjob = async () =>{
@@ -42,6 +42,7 @@ const cronjob = async () =>{
             }
         })
         //Delete Previous Month's Booking
+        console.log("CRONJOB HAS BEEN EXECUTED at " + new Date())
     }catch(err){
         console.log(err)
     }

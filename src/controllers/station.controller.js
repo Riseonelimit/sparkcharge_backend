@@ -151,6 +151,15 @@ const addSlot = asyncHandler(async (req, res) => {
             type: type.toUpperCase(),
         })
         populateSlot(createSlot._id)
+        const updateStation = await Station.findByIdAndUpdate(stationExists._id, {
+            $addToSet: {
+                availslottype: type.toUpperCase()
+            }
+        }, {new: true})
+        if(!updateStation){
+            //If station is not updated
+            throw new apierror(500, "Failed to Update Station Available Slot Type!")
+        }
         return res.status(201)
         .json(new apiresponse(201, createSlot , "Slot Created Successfully!"))
     }catch(err){
@@ -171,8 +180,24 @@ const removeSlot = asyncHandler(async (req, res) => {
         //If any of the fields are undefined or empty
         throw new apierror(400,"Please fill all the fields!")
     }
+    const avaislo = await Slot.find({
+        stationname: station_name.toUpperCase(), 
+        type: type.toUpperCase()
+    })
+    if(avaislo.length === 1){
+        const updateStation = await Station.findOneAndUpdate({station_name: station_name.toUpperCase()}, {
+            $pull: {
+                availslottype: type.toUpperCase()
+            }
+        }, {new: true})
+        if(!updateStation){
+            //If station is not updated
+            throw new apierror(500, "Failed to Update Station Available Slot Type!")
+        }
+    }
+    
     const deleteSlot = await Slot.findOneAndDelete({
-        stationame: station_name.toUpperCase(),
+        stationname: station_name.toUpperCase(),
         type: type.toUpperCase()
     })
     if(!deleteSlot){
@@ -211,17 +236,15 @@ const removeStation = asyncHandler(async (req, res) => {
 
 const getStationByLocation = asyncHandler(async (req, res) => {
     const { address } = req.query
-    console.log(address)
     if(address === undefined || address.trim() === ""){
         //If any of the fields are undefined or empty
         throw new apierror(400,"Please fill all the fields!")
     }
-
-    const addr = address.toUpperCase().trim().split(", ")
-    const regex = new RegExp(`${addr}`)
-
+    const escapedAddress = address.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
+    const regexPattern = escapedAddress.split(/\s+/).join(".*?")
+    const regex = new RegExp(regexPattern, 'i')
     const stations = await Station.find({address:regex})
-    if(!stations){
+    if(!stations || stations.length === 0){
         //If station does not exist
         throw new apierror(404, "No Stations Found!")
     }

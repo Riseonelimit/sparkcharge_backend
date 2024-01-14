@@ -39,6 +39,11 @@ const stationSchema = new mongoose.Schema({
         minlength: [3, "State must be at least 3 characters!"],
         maxlength: [32, "State must be at most 32 characters!"]
     },
+    availslottype:{
+        type: [],
+        required: false,
+        uppercase: true,
+    },
     manager: {
         type: [],
         required: false,
