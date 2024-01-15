@@ -134,19 +134,18 @@ const reserve = asyncHandler(async (req, res) => {
         //This should never execute
     }
 
-    try {
-        const reservation = await Booking.create({
-            uid:req.user._id,
-            bookingDate: selectedDate,
-            bookingTime: bookingTime,
-            bookingSlot: availSlot._id,
-            vehicleid: checkVehicle._id
-        })
-    } catch (error) {
-        throw new apierror(500, "Something went terribly wrong! Please try again later! Contact Administrator")
-    }
+    const reservation = await Booking.create({
+        uid:req.user._id,
+        bookingDate: selectedDate,
+        bookingTime: bookingTime,
+        bookingSlot: availSlot._id,
+        vehicleid: checkVehicle._id
+    })
     res.status(201)
     .json(new apiresponse(201,reservation, "Reservation successfull!"))
+    if(!reservation){
+        throw new apierror(500, "Something went terribly wrong! Please try again later! Contact Administrator")
+    }
 })
 
 const cancelReservation = asyncHandler(async (req, res) => {

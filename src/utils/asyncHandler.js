@@ -6,7 +6,7 @@ const asyncHandler = (requestHandler) => {
             Promise.resolve(requestHandler(req, res, next)).
             //if requestHandler returns a promise, resolve it
             catch((err)=>{
-                res.status(err.statusCode).json(err)
+                res.status(err.statusCode || 500).json(err)
                 next(err)
             })
             //if requestHandler throws an error, pass it to next()

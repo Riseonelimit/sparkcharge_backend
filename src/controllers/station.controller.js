@@ -29,18 +29,18 @@ const addStation = asyncHandler(async (req, res) => {
         //If station already exists
         throw new apierror(409, "Station already exists!")
     }else{
-        try {
-            const station = await Station.create({
-                station_name: station_name.toUpperCase(),
-                city: city.toUpperCase(),
-                state: state.toUpperCase(),
-                address: address.toUpperCase()
-            })
-            return res.status(201)
-            .json(new apiresponse(201, station , "Station Created Successfully!"))
-        } catch (error) {
+        const station = await Station.create({
+            station_name: station_name.toUpperCase(),
+            city: city.toUpperCase(),
+            state: state.toUpperCase(),
+            address: address.toUpperCase()
+        })
+        if(!station){
+            //If station is not created
             throw new apierror(500, "Failed to Create Station!")
         }
+        return res.status(201)
+        .json(new apiresponse(201, station , "Station Created Successfully!"))
     }
 })
 
@@ -144,28 +144,27 @@ const addSlot = asyncHandler(async (req, res) => {
         //If station does not exist
         throw new apierror(404, "Station does not exist!")
     }
-    try{
-        const createSlot = await Slot.create({
-            sid: stationExists._id,
-            stationname: station_name.toUpperCase(),
-            type: type.toUpperCase(),
-        })
-        populateSlot(createSlot._id)
-        const updateStation = await Station.findByIdAndUpdate(stationExists._id, {
-            $addToSet: {
-                availslottype: type.toUpperCase()
-            }
-        }, {new: true})
-        if(!updateStation){
-            //If station is not updated
-            throw new apierror(500, "Failed to Update Station Available Slot Type!")
-        }
-        return res.status(201)
-        .json(new apiresponse(201, createSlot , "Slot Created Successfully!"))
-    }catch(err){
+    const createSlot = await Slot.create({
+        sid: stationExists._id,
+        stationname: station_name.toUpperCase(),
+        type: type.toUpperCase(),
+    })
+    populateSlot(createSlot._id)
+    if(!createSlot){
+        //If slot is not created
         throw new apierror(501, "Failed to Create Slot!")
     }
-    
+    const updateStation = await Station.findByIdAndUpdate(stationExists._id, {
+        $addToSet: {
+            availslottype: type.toUpperCase()
+        }
+    }, {new: true})
+    if(!updateStation){
+        //If station is not updated
+        throw new apierror(500, "Failed to Update Station Available Slot Type!")
+    }
+    return res.status(201)
+    .json(new apiresponse(201, createSlot , "Slot Created Successfully!"))
 })
 
 const removeSlot = asyncHandler(async (req, res) => {
