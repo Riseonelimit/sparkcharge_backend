@@ -239,10 +239,11 @@ const getStationByLocation = asyncHandler(async (req, res) => {
         //If any of the fields are undefined or empty
         throw new apierror(400,"Please fill all the fields!")
     }
-    const escapedAddress = address.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
-    const regexPattern = escapedAddress.split(/\s+/).join(".*?")
-    const regex = new RegExp(regexPattern, 'i')
+    const addr = address.toUpperCase().trim().split(", ")
+    const regex = new RegExp(`${address.toUpperCase()}`)
+    console.log(regex);
     const stations = await Station.find({address:regex})
+    console.log(stations);
     if(!stations || stations.length === 0){
         //If station does not exist
         throw new apierror(404, "No Stations Found!")
@@ -286,7 +287,7 @@ const getStationSlotByLocation = asyncHandler(async (req, res) => {
 })
 
 const getSlotByStation = asyncHandler(async (req, res) => {
-    const station_name  = req.body.station_name
+    const {station_name}  = req.query
     if([station_name].some((field)=>field === undefined || (field?.trim() === ""))){
         //If any of the fields are undefined or empty
         throw new apierror(400,"Please fill all the fields!")
