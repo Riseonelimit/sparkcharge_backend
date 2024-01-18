@@ -47,7 +47,12 @@ const bookingSchema = new mongoose.Schema({
         type: Number,
         enum: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16],
         required: true
-    }
+    },
+    bookingSlotId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Slot",
+        required: true
+    },
 },{timestamps: true})
 
 const Booking = mongoose.model("Booking", bookingSchema)
