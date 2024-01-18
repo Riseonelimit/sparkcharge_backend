@@ -138,8 +138,9 @@ const reserve = asyncHandler(async (req, res) => {
         uid:req.user._id,
         bookingDate: selectedDate,
         bookingTime: bookingTime,
-        bookingSlot: availSlot._id,
-        vehicleid: checkVehicle._id
+        bookingSlotType: availSlot.type,
+        registrationNumber: checkVehicle.registrationNumber,
+        stationName: checkStation.station_name,
     })
     res.status(201)
     .json(new apiresponse(201,reservation, "Reservation successfull!"))

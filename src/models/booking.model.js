@@ -7,14 +7,36 @@ const bookingSchema = new mongoose.Schema({
         ref: "User",
         required: true
     },
-    bookingSlot: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Slot",
-        required: true
+    bookingSlotType: {
+        type: String,
+        enum: [
+            "DC-CCS1",
+            "DC-CCS2",
+            "DC-CHADEMO",
+            "DC-GB/T",
+            "AC-Type1",
+            "AC-Type2",
+            "AC-IEC",
+            "AC-BHARATAC001",
+            "DC-BHARATDC001",
+            "HYBRID-TESLA",
+        ],
+        required: true,
+        uppercase: true
     },
-    vehicleid: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Vehicle",
+    registrationNumber: {
+        type: String,
+        required: true,
+        validate: {
+            validator: function (v) {
+                return /^[a-zA-Z]{2}\d{2}[a-zA-Z]{2}\d{4}$/.test(v)
+                //Regex to validate vehicle number
+            },
+            message: props => `${props.value} is not a valid vehicle number!`
+        }
+    },
+    stationName: {
+        type: String,
         required: true
     },
     bookingDate: {

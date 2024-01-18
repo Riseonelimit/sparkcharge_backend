@@ -14,6 +14,7 @@ const router = Router()
 //Create Router
 
 router.route("/get-booking").get(verifyJWT, getUserBooking)
+//Get Booking Secure Route
 router.route("/reserve").post(verifyJWT, reserve)
 //Booking Secure Route
 router.route("/cancel-reservation").post(verifyJWT, cancelReservation)
