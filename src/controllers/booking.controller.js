@@ -15,8 +15,8 @@ const apierror = require('../utils/apierror.js')
 const apiresponse = require('../utils/apiresponse.js')
 //Import API Response from utils/apiresponse.js
 const reserve = asyncHandler(async (req, res) => {
-    const {stationName, slotType, bookingDate, bookingTime, registrationNumber} = req.body
-    if([stationName, slotType, bookingDate, bookingTime, registrationNumber].some((field)=>field === undefined || typeof field != 'string' || (field?.trim() === ""))){
+    const {stationName, slotType, bookingDate, bookingTime, registrationNumber, pickupndrop} = req.body
+    if([stationName, slotType, bookingDate, bookingTime, registrationNumber, pickupndrop].some((field)=>field === undefined || typeof field != 'string' || (field?.trim() === ""))){
         //If any of the fields are undefined or empty
         throw new apierror(400,"Please fill all the fields!")
     }
@@ -141,7 +141,8 @@ const reserve = asyncHandler(async (req, res) => {
         bookingSlotType: availSlot.type,
         registrationNumber: checkVehicle.registrationNumber,
         stationName: checkStation.station_name,
-        bookingSlotId: availSlot._id
+        bookingSlotId: availSlot._id,
+        pickUpNDrop: pickupndrop
     })
     res.status(201)
     .json(new apiresponse(201,reservation, "Reservation successfull!"))
@@ -152,7 +153,7 @@ const reserve = asyncHandler(async (req, res) => {
 
 const cancelReservation = asyncHandler(async (req, res) => {
     const bookingId = req.body.bookingId
-    if(bookingId === undefined || typeof field != 'string' || bookingId.trim() === ""){
+    if(bookingId === undefined || typeof bookingId != 'string' || bookingId.trim() === ""){
         throw new apierror(400, "Please fill all the fields!")
     }
     const reservation = await Booking.findOne({

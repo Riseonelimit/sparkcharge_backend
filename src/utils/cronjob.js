@@ -26,12 +26,32 @@ const cronjob = async () =>{
             })
         }
         //Delete Previous Day's Available Slot
-        const updateDay = await Slot.updateMany(slots._id,{
-            $set: {
-                [`availableSlot.${dayAfterTomorrow.getDate()}`] : timeslot
-            }
-        })
+
+        const checkTommorow = await Slot.find({
+            [`availableSlot.${tomorrow.getDate()}`] : { $exists : false }
+        }).select("id")
+        if(checkTommorow.length > 0){
+            const updateDay = await Slot.updateMany(checkTommorow._id,{
+                $set: {
+                    [`availableSlot.${tomorrow.getDate()}`] : timeslot
+                }
+            })
+        }
+        // Update Tomorrow's Available Slot if not present THIS SHOULD NEVER EXECUTE UNLESS
+        // User fiddles with the database
+
+        const checkDayAfterTommorow = await Slot.find({
+            [`availableSlot.${dayAfterTomorrow.getDate()}`] : { $exists : false }
+        }).select("id")
+        if(checkDayAfterTommorow.length > 0){
+            const updateDay = await Slot.updateMany(checkDayAfterTommorow._id,{
+                $set: {
+                    [`availableSlot.${dayAfterTomorrow.getDate()}`] : timeslot
+                }
+            })
+        }
         //Adding Day After Tommorow's Available Slot
+
         const prevMonth = new Date()
         prevMonth.setDate(today.getDate()-30)
         const bookingCleanup = await Booking.deleteMany({

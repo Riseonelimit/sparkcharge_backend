@@ -13,8 +13,6 @@ const asyncHandler = (requestHandler) => {
         }
     }
     
-    
-    
-    module.exports = asyncHandler
-    //Export asyncHandler
+module.exports = asyncHandler
+//Export asyncHandler
     

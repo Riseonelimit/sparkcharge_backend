@@ -53,6 +53,10 @@ const bookingSchema = new mongoose.Schema({
         ref: "Slot",
         required: true
     },
+    pickUpNDrop: {
+        type: Boolean,
+        required: true,
+    },
 },{timestamps: true})
 
 const Booking = mongoose.model("Booking", bookingSchema)
