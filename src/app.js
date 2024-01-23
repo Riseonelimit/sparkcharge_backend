@@ -36,9 +36,11 @@ app.use(morgan('dev'))
 cron.schedule('15 0 * * *', () => {
     //execute daily at 3am
     cronjob()
-}, {
-    timezone: "Asia/Kolkata"
-})
+}
+// , {
+//     timezone: "Asia/Kolkata"
+// }
+)
 const userRouter = require("./routes/user.routes.js")
 const stationRouter = require("./routes/station.routes.js")
 const bookingRouter = require("./routes/booking.routes.js")
