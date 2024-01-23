@@ -1,6 +1,6 @@
 const Booking = require('../models/booking.model.js')
 //Import Booking Model from models/booking.model.js
-const User=require('../models/user.model.js')
+// const User=require('../models/user.model.js')
 //Import User Model from models/user.model.js //YET TO BE USED
 const Vehicle = require('../models/vehicle.model.js')
 //Import Vehicle Model from models/vehicle.model.js
@@ -14,11 +14,15 @@ const apierror = require('../utils/apierror.js')
 //Import API Error from utils/apierror.js
 const apiresponse = require('../utils/apiresponse.js')
 //Import API Response from utils/apiresponse.js
-const reserve = asyncHandler(async (req, res) => {
+
+const reserve = asyncHandler(async (req, res, next) => {
     const {stationName, slotType, bookingDate, bookingTime, registrationNumber, pickupndrop} = req.body
-    if([stationName, slotType, bookingDate, bookingTime, registrationNumber, pickupndrop].some((field)=>field === undefined || typeof field != 'string' || (field?.trim() === ""))){
+    if([stationName, slotType, bookingDate, bookingTime, registrationNumber].some((field)=>field === undefined || typeof field != 'string' || (field?.trim() === ""))){
         //If any of the fields are undefined or empty
         throw new apierror(400,"Please fill all the fields!")
+    }
+    if(pickupndrop === undefined || typeof pickupndrop != 'boolean' || pickupndrop === null){
+        throw new apierror(400,"PickUpNDrop should be boolean!")
     }
     const selectedDate = new Date(bookingDate)
     const today = new Date()
@@ -124,7 +128,7 @@ const reserve = asyncHandler(async (req, res) => {
         throw new apierror(400, "Sorry! Specified Slot is not Available")
     }
     //Check if the slot is available
-    const updateAvailSlot = await Slot.updateOne(availSlot,{
+    const updateAvailSlot = await Slot.findByIdAndUpdate(availSlot._id,{
         $pull:{
             [`availableSlot.${bookDay}`]: parseInt(bookingTime)
         }
@@ -133,22 +137,29 @@ const reserve = asyncHandler(async (req, res) => {
         throw new apierror(500, "Failed to update slot! Contact Administrator")
         //This should never execute
     }
-
-    const reservation = await Booking.create({
-        uid:req.user._id,
-        bookingDate: selectedDate,
-        bookingTime: bookingTime,
-        bookingSlotType: availSlot.type,
-        registrationNumber: checkVehicle.registrationNumber,
-        stationName: checkStation.station_name,
-        bookingSlotId: availSlot._id,
-        pickUpNDrop: pickupndrop
-    })
-    res.status(201)
-    .json(new apiresponse(201,reservation, "Reservation successfull!"))
-    if(!reservation){
-        throw new apierror(500, "Something went terribly wrong! Please try again later! Contact Administrator")
-    }
+    req.stationName = stationName
+    req.slotType = slotType
+    req.bookingDate = bookDay
+    req.bookingTime = bookingTime
+    req.registrationNumber = registrationNumber
+    req.pickupndrop = pickupndrop
+    req.lockedslot = updateAvailSlot._id
+    next()
+    // const reservation = await Booking.create({
+    //     uid:req.user._id,
+    //     bookingDate: selectedDate,
+    //     bookingTime: bookingTime,
+    //     bookingSlotType: availSlot.type,
+    //     registrationNumber: checkVehicle.registrationNumber,
+    //     stationName: checkStation.station_name,
+    //     bookingSlotId: availSlot._id,
+    //     pickUpNDrop: pickupndrop
+    // })
+    // res.status(201)
+    // .json(new apiresponse(201,reservation, "Reservation successfull!"))
+    // if(!reservation){
+    //     throw new apierror(500, "Something went terribly wrong! Please try again later! Contact Administrator")
+    // }
 })
 
 const cancelReservation = asyncHandler(async (req, res) => {

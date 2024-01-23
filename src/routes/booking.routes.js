@@ -4,6 +4,9 @@ const{
     getUserBooking
 } = require('../controllers/booking.controller.js')
 //Import User Controller from user.controller.js
+const {
+    razorpaygenorder
+} = require('../controllers/transaction.controller.js')
 
 const { verifyJWT } = require('../middlewares/auth.middleware.js')
 //Import JWT Verification Middleware from auth.middleware.js
@@ -15,7 +18,7 @@ const router = Router()
 
 router.route("/get-booking").get(verifyJWT, getUserBooking)
 //Get Booking Secure Route
-router.route("/reserve").post(verifyJWT, reserve)
+router.route("/reserve").post(verifyJWT, reserve, razorpaygenorder)
 //Booking Secure Route
 router.route("/cancel-reservation").post(verifyJWT, cancelReservation)
 //Cancel Booking Secure Route
