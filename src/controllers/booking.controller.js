@@ -144,6 +144,7 @@ const reserve = asyncHandler(async (req, res, next) => {
     req.registrationNumber = registrationNumber
     req.pickupndrop = pickupndrop
     req.lockedslot = updateAvailSlot._id
+    req.selectedDate = selectedDate
     next()
     // const reservation = await Booking.create({
     //     uid:req.user._id,

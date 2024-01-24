@@ -46,7 +46,7 @@ const razorpaygenorder = asyncHandler(async(req,res) => {
             transactionAmount: order.amount,
             transactionStatus: "pending",
             reservationData: {
-                bookingDate: req.bookingDate,
+                bookingDate: req.selectedDate,
                 bookingTime: req.bookingTime,
                 stationName: req.stationName,
                 slotType: req.slotType,
