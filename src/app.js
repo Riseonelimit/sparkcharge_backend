@@ -33,12 +33,14 @@ app.use(cookieParser())
 app.use(morgan('dev'))
 //Express Morgan Logger
 
-cron.schedule('15 0 * * *', () => {
+cron.schedule('5 0 * * *', () => {
     //execute daily at 3am
     cronjob()
-}, {
-    timezone: "Asia/Kolkata"
-})
+}
+// , {
+//     timezone: "Asia/Kolkata"
+// }
+)
 const userRouter = require("./routes/user.routes.js")
 const stationRouter = require("./routes/station.routes.js")
 const bookingRouter = require("./routes/booking.routes.js")
