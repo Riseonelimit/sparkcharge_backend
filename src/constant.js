@@ -1,5 +1,5 @@
-const reserveamo = 60
-const pickupndropamo = 40
+const reserveamo = 60 * 100
+const pickupndropamo = 40 * 100
 module.exports = {
     reserveamo,
     pickupndropamo
