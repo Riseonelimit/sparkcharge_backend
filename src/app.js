@@ -33,7 +33,7 @@ app.use(cookieParser())
 app.use(morgan('dev'))
 //Express Morgan Logger
 
-cron.schedule('15 0 * * *', () => {
+cron.schedule('5 0 * * *', () => {
     //execute daily at 3am
     cronjob()
 }
