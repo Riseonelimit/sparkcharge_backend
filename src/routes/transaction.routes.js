@@ -1,5 +1,5 @@
 const {
-    razorpaygenorder,
+    // razorpaygenorder,
     verifyrazorsignature
 } = require('../controllers/transaction.controller.js')
 
@@ -11,7 +11,7 @@ const Router = require('express').Router
 const router = Router()
 //Create Router
 
-router.route("/razorpay-order").post(verifyJWT, razorpaygenorder)
+// router.route("/razorpay-order").post(verifyJWT, razorpaygenorder)
 router.route("/verifysignature").post(verifyJWT, verifyrazorsignature)
 
 module.exports = router

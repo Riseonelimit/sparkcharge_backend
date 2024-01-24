@@ -7,11 +7,6 @@ const transactionSchema = new mongoose.Schema({
         ref: "User",
         required: true
     },
-    bookingId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Booking",
-        required: true
-    },
     transactionId: {
         type: String,
         required: true
@@ -28,6 +23,10 @@ const transactionSchema = new mongoose.Schema({
     transactionPaymentId: {
         type: String,
         required: false
+    },
+    reservationData: {
+        type: Object,
+        required: true
     }
 }, { 
     timestamps: true 

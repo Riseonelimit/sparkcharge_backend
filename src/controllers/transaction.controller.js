@@ -1,5 +1,7 @@
 const Booking = require('../models/booking.model.js')
 //Import Booking Model
+const { reserveamo, pickupndropamo } = require('../constant.js')
+//Import Reserve and PickupnDrop Amount from constant.js
 const Transaction = require('../models/transaction.model.js')
 //Import Transaction Model
 const asyncHandler = require('../utils/asyncHandler.js')
@@ -10,6 +12,9 @@ const apiresponse = require('../utils/apiresponse.js')
 //Import API Response from utils/apiresponse.js
 const Razorpay = require("razorpay")
 //Import Razorpay
+const Slot = require('../models/slot.model.js')
+//Import Slot Model
+
 var razor_instance = new Razorpay({
     key_id: process.env.RAZORPAY_KEY_ID,
     key_secret: process.env.RAZORPAY_KEY_SECRET,
@@ -17,23 +22,18 @@ var razor_instance = new Razorpay({
 //Razorpay Instance
 const hmac_sha256 = require('crypto-js/hmac-sha256')
 
-const razorpaygenorder = asyncHandler(async(req,res,next) => {
-    const {amount, receipt, bookingid} = req.body
-    if([amount, receipt, bookingid].some((field)=>field === undefined || typeof field != 'string' || (field?.trim() === ""))){
-        //If any of the fields are undefined or empty
-        throw new apierror(400,"Please fill all the fields!")
+const razorpaygenorder = asyncHandler(async(req,res) => {
+    let amount;
+    if(req.pickupndrop == true){
+        amount = reserveamo + pickupndropamo
+    }else{
+        amount = reserveamo
     }
-    const checkBooking = await Booking.findOne({
-        _id: bookingid,
-        uid: req.user._id
-    })
-    if(!checkBooking){
-        throw new apierror(404,"Booking Not Found")
-    }
+
     var options = {
         amount: parseInt(amount),
         currency: "INR",
-        receipt: receipt
+        receipt: req.user._id,
     }
     razor_instance.orders.create(options, async function(err, order) {
         //console.log(order);
@@ -42,18 +42,65 @@ const razorpaygenorder = asyncHandler(async(req,res,next) => {
         }
         const transaction = await Transaction.create({
             uid: req.user._id,
-            bookingId: bookingid,
             transactionId: order.id,
             transactionAmount: order.amount,
-            transactionStatus: "pending"
+            transactionStatus: "pending",
+            reservationData: {
+                bookingDate: req.bookingDate,
+                bookingTime: req.bookingTime,
+                stationName: req.stationName,
+                slotType: req.slotType,
+                registrationNumber: req.registrationNumber,
+                pickupndrop: req.pickupndrop,
+                lockedslot: req.lockedslot
+            }
         })
         if(transaction === undefined || transaction === null){
             throw new apierror(500,"Failed to Create Transaction")
         }
-        req.orderid = order.id
+        setTimeout(async function(){
+            disablelockin(transaction._id);
+        }, 600000)
         res.status(200).json(new apiresponse(200,order.id,"Order ID Generated"))
     })
 })
+
+async function disablelockin(transactionid){
+    const checkTransaction = await Transaction.findById(transactionid)
+    if(!checkTransaction){
+        console.log("Critical Server Error! Transaction not found!")
+    }
+    if(checkTransaction.transactionStatus === "pending"){
+        const updateTransaction = await Transaction.updateOne(checkTransaction,{
+            transactionStatus: "failed"
+        })
+        if(!updateTransaction){
+            console.log("Critical Server Error! Failed to Update Transaction")
+        }
+        const lockedslot = checkTransaction.reservationData.lockedslot
+        const lockeddate = checkTransaction.reservationData.bookingDate
+        const lockedtimeslot = parseInt(checkTransaction.reservationData.bookingTime)
+        const querySlot = await Slot.findOne({
+            _id: lockedslot,
+            [`availableSlot.${lockeddate}`]:{
+                $in: [lockedtimeslot]
+            }
+        })
+        if(!querySlot){
+            const updateAvailSlot = await Slot.updateOne({
+                _id: lockedslot
+            },{
+                $push:{
+                    [`availableSlot.${lockeddate}`]: lockedtimeslot
+                }
+            })
+            if(!updateAvailSlot){
+                throw new apierror(500, "Critical Server Error! Failed to Unlock Slot")
+                //This should never execute
+            }
+        }
+    }
+}
 
 const verifyrazorsignature = asyncHandler(async(req,res) => {
     const {razorpay_order_id, razorpay_payment_id, razorpay_signature} = req.body
@@ -61,11 +108,14 @@ const verifyrazorsignature = asyncHandler(async(req,res) => {
         transactionId: razorpay_order_id,
         uid: req.user._id
     })
+    if(fetchOrderObj.transactionPaymentId != undefined || fetchOrderObj.transactionPaymentId != null){
+        throw new apierror(400, "Payment has been already proccessed!")
+    }
     let order_id
     if(fetchOrderObj){
         order_id = fetchOrderObj.transactionId
     }
-    const generated_signature = hmac_sha256(order_id + "|" + razorpay_payment_id, process.env.RAZORPAY_KEY_SECRET);
+    const generated_signature = hmac_sha256(order_id + "|" + razorpay_payment_id, process.env.RAZORPAY_KEY_SECRET).toString();
     if (generated_signature === razorpay_signature) {
         const updateTransaction = await Transaction.updateOne({
             transactionId: razorpay_order_id
@@ -76,9 +126,31 @@ const verifyrazorsignature = asyncHandler(async(req,res) => {
         if(!updateTransaction){
             throw new apierror(500,"Failed to Update Transaction")
         }
-        res.status(200).json(
-            new apiresponse(200,"","Payment Processed Successfully")
+        const selectedDate = fetchOrderObj.reservationData.bookingDate
+        const bookingTime = fetchOrderObj.reservationData.bookingTime
+        const stationName = fetchOrderObj.reservationData.stationName
+        const slotType = fetchOrderObj.reservationData.slotType
+        const pickupndrop = fetchOrderObj.reservationData.pickupndrop
+        const registrationNumber = fetchOrderObj.reservationData.registrationNumber
+        const bookedslot = fetchOrderObj.reservationData.lockedslot
+        const userid = fetchOrderObj.uid
+        const reservation = await Booking.create({
+            uid: userid,
+            bookingDate: selectedDate,
+            bookingTime: bookingTime,
+            bookingSlotType: slotType,
+            registrationNumber: registrationNumber,
+            stationName: stationName,
+            bookingSlotId: bookedslot,
+            pickUpNDrop: pickupndrop
+        })
+        if(!reservation){
+            throw new apierror(500,"Failed to Create Reservation")
+        }
+        return res.status(200).json(
+            new apiresponse(200,reservation,"Payment Processed, Reservation Successful")
         )
+        
     }
     console.log(req.user._id+" has tried malicious transaction spoofing!")
     throw new apierror(501,"Signature Verification Failed, This activity will be reported!")
