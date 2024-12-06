@@ -2,6 +2,7 @@
 
 This project aims to enhance and optimize the infrastructure for electric vehicle (EV) charging stations. The focus is on developing solutions that improve accessibility, efficiency, and sustainability within charging networks.
 
+Frontend repo - https://github.com/Riseonelimit/SparkCharge
 ## Project Members
 
 - Mandar Joshi.
