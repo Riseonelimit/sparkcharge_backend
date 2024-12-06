@@ -1,4 +1,4 @@
-# EV Charging Station Project
+# SparkCharge EV Charging Station Project
 
 This project aims to enhance and optimize the infrastructure for electric vehicle (EV) charging stations. The focus is on developing solutions that improve accessibility, efficiency, and sustainability within charging networks.
 
